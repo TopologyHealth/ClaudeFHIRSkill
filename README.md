@@ -54,6 +54,107 @@ Invoke this skill when working on:
 
 Add this skill to your Claude Code environment by placing the `SKILL.md` file in your project's `.claude/skills/` directory or your global skills directory.
 
+## Slash Commands
+
+This skill includes convenient slash commands for common FHIR development tasks:
+
+### `/fhir-validate`
+
+Validate a FHIR resource file against a profile or the base FHIR specification.
+
+**Usage:**
+
+```
+/fhir-validate patient.json
+```
+
+Checks for:
+
+- Valid resourceType and structure
+- Required fields presence
+- Data type correctness (dates, codes, references)
+- Cardinality constraints
+- Terminology bindings (if profile specified)
+- Extension validity
+
+### `/fhir-create-resource`
+
+Generate a FHIR resource template with proper structure and example data.
+
+**Usage:**
+
+```
+/fhir-create-resource Patient
+/fhir-create-resource Observation with US Core profile
+/fhir-create-resource Medication in TypeScript
+```
+
+Supports:
+
+- All FHIR resource types
+- Multiple output formats (JSON, TypeScript, Python)
+- Profile-specific templates (US Core, etc.)
+- Code generation with validation
+
+### `/fhir-search`
+
+Help construct FHIR search queries with proper parameters and syntax.
+
+**Usage:**
+
+```
+/fhir-search find patients by name and birthdate
+/fhir-search observations with _include
+/fhir-search medications as curl command
+```
+
+Provides:
+
+- Properly formatted search URLs
+- Correct parameter syntax (string, token, date, reference)
+- Query modifiers (\_include, \_revinclude, \_sort, \_count)
+- Code snippets for various languages
+
+### `/fhir-package`
+
+Manage FHIR package installation, loading, and dependency resolution.
+
+**Usage:**
+
+```
+/fhir-package install hl7.fhir.us.core
+/fhir-package list installed
+/fhir-package load hl7.fhir.r4.core in Python
+```
+
+Handles:
+
+- Package installation from registry
+- Cache management
+- Loading packages in code
+- Inspecting package contents
+
+### `/fhir-test`
+
+Generate comprehensive test cases for FHIR resources and APIs.
+
+**Usage:**
+
+```
+/fhir-test create unit tests for Patient validation
+/fhir-test API tests for /Patient endpoint
+/fhir-test generate test fixtures
+```
+
+Generates:
+
+- Unit tests for resource validation
+- Integration tests for API endpoints
+- CRUD operation tests
+- Search functionality tests
+- Profile conformance tests
+- Test fixtures with realistic data
+
 ## Usage Examples
 
 ### Example 1: Building a FHIR Server Endpoint
@@ -72,6 +173,12 @@ The skill will provide guidance on:
 
 ```
 How do I validate a Patient resource against the US Core Patient profile?
+```
+
+Or use the slash command:
+
+```
+/fhir-validate patient.json against US Core
 ```
 
 The skill will guide you through:

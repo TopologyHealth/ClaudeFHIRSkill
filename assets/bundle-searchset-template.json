@@ -1,0 +1,85 @@
+{
+  "resourceType": "Bundle",
+  "id": "search-results-example",
+  "meta": {
+    "lastUpdated": "2023-10-15T14:30:00Z"
+  },
+  "type": "searchset",
+  "total": 2,
+  "link": [
+    {
+      "relation": "self",
+      "url": "https://api.example.org/fhir/Patient?name=doe"
+    },
+    {
+      "relation": "first",
+      "url": "https://api.example.org/fhir/Patient?name=doe&_page=1"
+    },
+    {
+      "relation": "last",
+      "url": "https://api.example.org/fhir/Patient?name=doe&_page=1"
+    }
+  ],
+  "entry": [
+    {
+      "fullUrl": "https://api.example.org/fhir/Patient/example-patient",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "example-patient",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2023-10-15T12:00:00Z"
+        },
+        "identifier": [
+          {
+            "system": "http://hospital.example.org/patients",
+            "value": "123456789"
+          }
+        ],
+        "active": true,
+        "name": [
+          {
+            "family": "Doe",
+            "given": ["John"]
+          }
+        ],
+        "gender": "male",
+        "birthDate": "1980-01-01"
+      },
+      "search": {
+        "mode": "match",
+        "score": 1.0
+      }
+    },
+    {
+      "fullUrl": "https://api.example.org/fhir/Patient/example-patient-2",
+      "resource": {
+        "resourceType": "Patient",
+        "id": "example-patient-2",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2023-10-15T11:30:00Z"
+        },
+        "identifier": [
+          {
+            "system": "http://hospital.example.org/patients",
+            "value": "987654321"
+          }
+        ],
+        "active": true,
+        "name": [
+          {
+            "family": "Doe",
+            "given": ["Jane"]
+          }
+        ],
+        "gender": "female",
+        "birthDate": "1975-05-15"
+      },
+      "search": {
+        "mode": "match",
+        "score": 0.9
+      }
+    }
+  ]
+}

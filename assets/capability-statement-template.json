@@ -1,0 +1,146 @@
+{
+  "resourceType": "CapabilityStatement",
+  "id": "example-fhir-server",
+  "meta": {
+    "lastUpdated": "2023-10-15T14:30:00Z"
+  },
+  "url": "https://api.example.org/fhir/metadata",
+  "version": "1.0.0",
+  "name": "ExampleFHIRServer",
+  "title": "Example FHIR Server Capability Statement",
+  "status": "active",
+  "experimental": false,
+  "date": "2023-10-15",
+  "publisher": "Example Healthcare Organization",
+  "contact": [
+    {
+      "name": "FHIR Support Team",
+      "telecom": [
+        {
+          "system": "email",
+          "value": "fhir-support@example.org"
+        }
+      ]
+    }
+  ],
+  "description": "Capability statement for the Example FHIR Server supporting patient management and clinical data exchange",
+  "kind": "instance",
+  "software": {
+    "name": "Example FHIR Server",
+    "version": "2.1.0",
+    "releaseDate": "2023-10-01"
+  },
+  "implementation": {
+    "description": "Example FHIR Server for healthcare data management",
+    "url": "https://api.example.org/fhir"
+  },
+  "fhirVersion": "4.0.1",
+  "format": [
+    "application/fhir+json",
+    "application/fhir+xml"
+  ],
+  "patchFormat": [
+    "application/json-patch+json",
+    "application/fhir+json"
+  ],
+  "rest": [
+    {
+      "mode": "server",
+      "documentation": "Main FHIR endpoint supporting patient and clinical resources",
+      "security": {
+        "cors": true,
+        "service": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/restful-security-service",
+                "code": "OAuth",
+                "display": "OAuth2 using SMART-on-FHIR profile"
+              }
+            ]
+          }
+        ],
+        "description": "Uses OAuth2/SMART-on-FHIR for authorization"
+      },
+      "resource": [
+        {
+          "type": "Patient",
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-patient",
+          "documentation": "Patient resource supporting US Core profile",
+          "interaction": [
+            {"code": "read"},
+            {"code": "vread"},
+            {"code": "update"},
+            {"code": "delete"},
+            {"code": "create"},
+            {"code": "search-type"}
+          ],
+          "versioning": "versioned-update",
+          "readHistory": true,
+          "updateCreate": false,
+          "conditionalCreate": true,
+          "conditionalUpdate": true,
+          "conditionalDelete": "multiple",
+          "searchParam": [
+            {
+              "name": "identifier",
+              "type": "token",
+              "documentation": "A patient identifier"
+            },
+            {
+              "name": "name", 
+              "type": "string",
+              "documentation": "Patient name"
+            },
+            {
+              "name": "birthdate",
+              "type": "date", 
+              "documentation": "Date of birth"
+            },
+            {
+              "name": "gender",
+              "type": "token",
+              "documentation": "Gender"
+            }
+          ]
+        },
+        {
+          "type": "Observation",
+          "profile": "http://hl7.org/fhir/us/core/StructureDefinition/us-core-observation-lab",
+          "interaction": [
+            {"code": "read"},
+            {"code": "create"},
+            {"code": "search-type"}
+          ],
+          "searchParam": [
+            {
+              "name": "subject",
+              "type": "reference",
+              "documentation": "Subject of observation"
+            },
+            {
+              "name": "code",
+              "type": "token", 
+              "documentation": "Observation code"
+            },
+            {
+              "name": "date",
+              "type": "date",
+              "documentation": "Observation date"
+            }
+          ]
+        }
+      ],
+      "interaction": [
+        {
+          "code": "transaction",
+          "documentation": "Support for FHIR transactions"
+        },
+        {
+          "code": "batch", 
+          "documentation": "Support for FHIR batch operations"
+        }
+      ]
+    }
+  ]
+}

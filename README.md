@@ -24,6 +24,7 @@ Invoke this skill when working on:
 - **SMART on FHIR Apps**: Healthcare applications using SMART launch workflows
 - **Terminology Integration**: Working with ValueSets, CodeSystems, and terminology services
 - **Profile Development**: Creating custom FHIR profiles and Implementation Guides
+- **IG Authoring with FSH**: Writing FHIR Shorthand (`.fsh`) files, configuring SUSHI, and converting FHIR JSON to FSH with GoFSH
 
 ## Features
 
@@ -58,11 +59,12 @@ Add this skill to your Claude Code environment by placing the `SKILL.md` file in
 
 ### Example 1: Building a FHIR Server Endpoint
 
-```
+```text
 I need to create a FHIR Patient endpoint in Python using FastAPI
 ```
 
 The skill will provide guidance on:
+
 - Setting up FastAPI with fhir.resources
 - Implementing CRUD operations
 - Validation patterns
@@ -70,11 +72,12 @@ The skill will provide guidance on:
 
 ### Example 2: Validating Against a Profile
 
-```
+```text
 How do I validate a Patient resource against the US Core Patient profile?
 ```
 
 The skill will guide you through:
+
 - Loading the US Core package
 - Setting up profile validation
 - Checking must-support elements
@@ -82,11 +85,12 @@ The skill will guide you through:
 
 ### Example 3: SMART on FHIR Integration
 
-```
+```text
 I need to implement SMART on FHIR authorization for my app
 ```
 
 The skill provides:
+
 - OAuth 2.0 configuration
 - Authorization code flow implementation
 - Token exchange patterns
@@ -112,6 +116,7 @@ The skill provides:
 ## Contributing
 
 Contributions to improve this skill are welcome! Please ensure any additions:
+
 - Follow FHIR specification guidelines
 - Include working code examples
 - Cover common use cases

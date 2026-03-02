@@ -1,0 +1,13 @@
+{
+  "name": "fhir-developer-skills",
+  "owner": {
+    "name": "Topology Health",
+    "email": "info@topology.health"
+  },
+  "plugins": [
+    {
+      "name": "fhir-developer-skills",
+      "source": "./"
+    }
+  ]
+}

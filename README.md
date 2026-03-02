@@ -53,6 +53,41 @@ Invoke this skill when working on:
 
 ## Installation
 
+### Prerequisites
+
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI or VS Code extension installed
+
+### CLI
+
+1. Launch Claude Code in your terminal:
+
+   ```bash
+   claude
+   ```
+
+2. Add the marketplace:
+
+   ```bash
+   /plugin marketplace add TopologyHealth/ClaudeFHIRSkill
+   ```
+
+3. Install the skill:
+
+   ```bash
+   /plugin install fhir-developer-skills@ClaudeFHIRSkill
+   ```
+
+### VS Code
+
+1. Click `/` in the Claude Code chat to open the command menu
+2. Select **Manage Plugins**
+3. Click **Marketplaces**
+4. Enter the repository URL: `https://github.com/TopologyHealth/ClaudeFHIRSkill`
+5. Click **Install**
+6. The skill will appear in your Plugins list
+
+### Manual
+
 Add this skill to your Claude Code environment by placing the `SKILL.md` file in your project's `.claude/skills/` directory or your global skills directory.
 
 ## Usage Examples

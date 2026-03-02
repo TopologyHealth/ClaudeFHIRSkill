@@ -1,6 +1,6 @@
 ---
 name: fhir-software
-description: Comprehensive FHIR (Fast Healthcare Interoperability Resources) software development assistant. Use when working with FHIR APIs, implementations, or healthcare data exchange. Supports FHIR R4, R4B, R5, Implementation Guides (IGs), validation, terminology, and SMART on FHIR. Ideal for building FHIR servers, clients, validators, or healthcare applications that need to process FHIR resources.
+description: Comprehensive FHIR (Fast Healthcare Interoperability Resources) software development assistant. Use when working with FHIR APIs, implementations, or healthcare data exchange. Supports FHIR R4, R4B, R5, Implementation Guides (IGs), FHIR Shorthand (FSH) authoring, SUSHI, GoFSH, validation, terminology, and SMART on FHIR. Ideal for building FHIR servers, clients, validators, IG authors, or healthcare applications that need to process FHIR resources.
 ---
 
 # FHIR Software Development Skill
@@ -477,3 +477,277 @@ npm start
 - **Interoperability**: HL7 v2 to FHIR conversion, CDA to FHIR
 
 For detailed implementation guidance, reference the FHIR specification at https://hl7.org/fhir/ and implementation guides at https://fhir.org/guides/registry/
+
+---
+
+## 6. FHIR Shorthand (FSH) & IG Authoring
+
+### Toolchain
+
+| Tool | Role | Install |
+|------|------|---------|
+| **SUSHI** | Compiles `.fsh` files → FHIR JSON | `npm install -g fsh-sushi` |
+| **GoFSH** | Converts FHIR JSON → FSH source | `npm install -g gofsh` |
+| **IG Publisher** | Renders IG website from SUSHI output | Downloaded via `_updatePublisher.sh` |
+
+### SUSHI Commands
+```bash
+sushi init                          # Scaffold new IG project
+sushi build                         # Compile FSH → FHIR JSON (from project root)
+sushi build . --snapshot            # Include full StructureDefinition snapshot
+sushi build . --log-level debug     # Verbose output
+sushi build . --preprocessed        # Debug: dump resolved aliases/rulesets
+sushi update-dependencies           # Update deps to latest
+```
+
+Output: `fsh-generated/resources/{ResourceType}-{id}.json`. **SUSHI clears this folder on every build — never edit it manually.**
+
+### GoFSH Commands
+```bash
+gofsh ./fhir-resources                          # Convert JSON artifacts to FSH
+gofsh ./definitions -d hl7.fhir.us.core@6.1.0  # With extra dependencies
+gofsh ./definitions --style group-by-profile    # Organize output by profile
+gofsh ./definitions --indent                    # Use indented rule style
+gofsh ./definitions --fshing-trip               # Validate round-trip accuracy
+```
+
+### Project Structure
+```
+my-ig/
+├── sushi-config.yaml              # Required: IG configuration
+├── ig.ini                         # Required for IG Publisher
+├── _genonce.sh / _genonce.bat     # Run IG Publisher
+├── _updatePublisher.sh / .bat     # Download latest IG Publisher jar
+├── input/
+│   ├── fsh/                       # All FSH source files
+│   │   ├── aliases.fsh            # Alias: $LNC = http://loinc.org
+│   │   ├── profiles.fsh
+│   │   ├── extensions.fsh
+│   │   ├── valuesets.fsh
+│   │   ├── codesystems.fsh
+│   │   ├── instances.fsh
+│   │   └── rulesets.fsh
+│   ├── pagecontent/               # IG narrative (Markdown)
+│   │   ├── index.md               # Home page
+│   │   ├── 1_background.md        # Numbered = TOC order
+│   │   ├── {resource-id}-intro.md # Content before artifact
+│   │   └── {resource-id}-notes.md # Content after artifact
+│   ├── images/                    # Images, PDFs, spreadsheets
+│   └── ignoreWarnings.txt
+└── fsh-generated/                 # SUSHI output (auto-generated, do not edit)
+```
+
+### sushi-config.yaml (Minimal Required Fields)
+```yaml
+id: hl7.fhir.us.example
+canonical: http://hl7.org/fhir/us/example
+name: ExampleIG
+title: "Example Implementation Guide"
+status: draft                     # draft | active | retired | unknown
+version: 0.1.0
+fhirVersion: 4.0.1
+copyrightYear: 2024+
+releaseLabel: ci-build
+publisher:
+  name: My Organization
+  url: http://example.org
+dependencies:
+  hl7.fhir.us.core: 6.1.0
+menu:
+  Home: index.html
+  Artifacts: artifacts.html
+parameters:
+  show-inherited-invariants: false
+```
+
+### FSH Entity Types
+
+#### Profile
+```
+Profile: MyPatientProfile
+Parent: Patient
+Id: my-patient-profile
+Title: "My Patient Profile"
+Description: "Constrained Patient for our IG"
+* identifier 1..* MS
+* name 1..* MS
+* birthDate MS
+* gender 1..1 MS
+* gender from http://hl7.org/fhir/ValueSet/administrative-gender (required)
+```
+
+#### Extension (Simple)
+```
+Extension: PatientReligion
+Id: patient-religion
+Title: "Patient Religion"
+Context: Patient
+* value[x] only CodeableConcept
+* value[x] from ReligionValueSet (extensible)
+```
+
+#### Extension (Complex — sub-extensions)
+```
+Extension: USCoreEthnicityExtension
+Id: us-core-ethnicity
+Context: Patient, RelatedPerson, Practitioner
+* extension contains
+    ombCategory 0..1 MS and
+    detailed 0..* and
+    text 1..1 MS
+* extension[ombCategory].value[x] only Coding
+* extension[ombCategory].value[x] from OmbEthnicityCategories (required)
+* extension[text].value[x] only string
+```
+
+#### Instance
+```
+Instance: JaneDoe
+InstanceOf: MyPatientProfile
+Title: "Jane Doe"
+Usage: #example            // #example | #definition | #inline
+* name[0].family = "Doe"
+* name[0].given[0] = "Jane"
+* birthDate = 1970-01-01
+* gender = #female
+```
+
+#### ValueSet
+```
+ValueSet: MyConditionStatusVS
+Id: my-condition-status
+Title: "Condition Status Codes"
+* include codes from system $SCT where concept is-a #404684003
+* $V3#active "Active"
+* exclude $SCT#74964007 "Other"
+```
+
+#### CodeSystem
+```
+CodeSystem: MyCustomCodes
+Id: my-custom-codes
+* #pending "Pending" "Awaiting review"
+* #approved "Approved" "Formally approved"
+// Hierarchical:
+* #body "Body"
+  * #head "Head"
+```
+
+#### Invariant + Obeys
+```
+Invariant: my-inv-1
+Description: "Value must be present for vital-signs category"
+Severity: #error
+Expression: "category.coding.code = 'vital-signs' implies value.exists()"
+
+// In a Profile:
+* obeys my-inv-1
+```
+
+#### RuleSet (Reusable / Parameterized)
+```
+RuleSet: PublicationMetadata
+* ^status = #active
+* ^experimental = false
+* ^publisher = "My Org"
+
+// Parameterized
+RuleSet: SetContext(contextPath)
+* ^context[+].type = #element
+* ^context[=].expression = "{contextPath}"
+
+// Usage:
+* insert PublicationMetadata
+* insert SetContext(Patient)
+```
+
+### FSH Rules Quick Reference
+
+| Rule | Syntax | Example |
+|------|--------|---------|
+| Cardinality | `* elem min..max` | `* name 1..* MS` |
+| Must Support | `* elem MS` | `* identifier MS` |
+| Type constraint | `* elem only Type` | `* value[x] only Quantity` |
+| Binding | `* elem from VS (strength)` | `* code from MyVS (required)` |
+| Fixed value | `* elem = value` | `* status = #final` |
+| Fixed coding | `* elem = $SYS#code "display"` | `* code = $LNC#29463-7` |
+| Quantity | `* elem = n 'unit'` | `* value = 70 'kg'` |
+| Slice (element) | `* arr contains name card` | `* component contains systolic 1..1` |
+| Slice (extension) | `* extension contains Ext named n card` | `* extension contains $Race named race 0..1` |
+| Obeys | `* obeys inv-id` | `* obeys us-core-6` |
+| Caret (metadata) | `* ^property = val` | `* ^experimental = false` |
+| Insert RuleSet | `* insert RSName` | `* insert PublicationMetadata` |
+
+### Path Grammar Quick Reference
+
+```
+status                              // Simple element
+name.family                         // Nested
+valueQuantity                       // Choice [x] resolved
+name[0]                             // Array index (zero-based)
+name[+]                             // Soft index: next slot
+name[=]                             // Soft index: same slot
+component[respirationScore]         // Slice by name
+extension[race]                     // Extension slice
+performer[Practitioner]             // Reference target
+^experimental                       // StructureDefinition metadata
+code ^short                         // ElementDefinition property
+```
+
+### Coding / Quantity Syntax
+
+```
+// Alias declaration (top of file)
+Alias: $LNC = http://loinc.org
+Alias: $SCT = http://snomed.info/sct
+
+// Code (no system)
+#active
+
+// Coding
+http://loinc.org#29463-7 "Body Weight"
+$LNC#29463-7 "Body Weight"
+
+// Quantity (UCUM)
+70.5 'kg' "kg"
+120 'mm[Hg]' "mmHg"
+```
+
+### Naming Conventions
+
+| Item | Convention | Example |
+|------|-----------|---------|
+| Profile/Extension/RuleSet names | `PascalCase` | `MyPatientProfile` |
+| Item IDs | `kebab-case`, max 64 chars | `my-patient-profile` |
+| Slice names | `lowerCamelCase` | `respirationScore` |
+| Alias names | `$PrefixedName` | `$LNC`, `$SCT` |
+
+### Key Rules
+1. **Declare slices before constraining them** — `contains` rule must precede slice-specific rules
+2. **Declare extensions before constraining sub-elements** — same ordering requirement
+3. **`fsh-generated/` is owned by SUSHI** — never edit it; it is deleted and regenerated on each build
+4. **Caret (`^`) rules are forbidden in Instances** — use them only in Profiles, Extensions, ValueSets, CodeSystems
+
+### IG Authoring Workflow
+```bash
+# New IG from scratch
+mkdir my-ig && cd my-ig
+sushi init               # Interactive scaffold
+# Edit sushi-config.yaml and write .fsh files
+sushi build              # Compile
+./_genonce.sh            # Run IG Publisher
+
+# Migrate existing FHIR JSON to FSH
+gofsh ./existing-resources -d hl7.fhir.us.core@6.1.0 \
+  --style group-by-profile --indent --fshing-trip
+
+# Debug a failing build
+sushi build --log-level debug
+sushi build --preprocessed   # Inspect resolved aliases/rulesets
+```
+
+### Reference Files
+- Full spec: https://build.fhir.org/ig/HL7/fhir-shorthand/reference.html
+- SUSHI docs: https://fshschool.org/docs/sushi/
+- GoFSH docs: https://fshschool.org/docs/gofsh/
+- See also: `references/fsh_ig_authoring.md` for the complete reference

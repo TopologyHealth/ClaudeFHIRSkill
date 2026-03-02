@@ -1,0 +1,12 @@
+{
+  "name": "fhir-developer-skills",
+  "version": "0.2.0",
+  "description": "Comprehensive FHIR software development skill covering FHIR R4/R5 APIs, resource modeling, server implementation, profile validation, terminology, SMART on FHIR, FSH authoring, SUSHI, GoFSH, and IG publishing",
+  "author": {
+    "name": "Topology Health",
+    "email": "info@topology.health"
+  },
+  "skills": [
+    "./"
+  ]
+}
